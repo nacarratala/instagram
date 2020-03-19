@@ -46,7 +46,7 @@ def toInt(string):
 
 class InstaBot:
 
-	## Entro a Instagram
+	## Se logea en Instagram
 	def __init__(self, username, pw):
 	
 		self.username = username
@@ -78,6 +78,7 @@ class InstaBot:
 
 	####################################################################################################
 
+	# Devuelve los non_important del user pasado como parametro
 	def get_nonimportant(self,user):
 
 		# Entro al perfil del cliente
@@ -102,6 +103,7 @@ class InstaBot:
 
 	####################################################################################################	
 	
+	# Devuelve los nono_followers del user pasado como parametro
 	def get_nonfollowers(self, user):
 
 		# Entro al perfil del cliente
@@ -115,6 +117,7 @@ class InstaBot:
 
 		# Consigo la python list con sus seguidos (se cierra seguidos)
 		following = self.get_users()
+		print("El usuario sigue a ",len(following), " personas")
 
 		# Abro seguidores
 		self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
@@ -123,6 +126,7 @@ class InstaBot:
 
 		# Consigo la python list con sus seguidores (se cierra seguidores)
 		followers = self.get_users()
+		print("Al usuario lo siguen ", len(followers), " personas")
 
 		# Consigo e imprimo la lista de sus non-followers
 		no_following_back = [user for user in following if user not in followers]
@@ -140,6 +144,7 @@ class InstaBot:
 
 	####################################################################################################
 	
+	# Devuelve la lista de todos los usuarios que aparecen en la scroll_box previamente abierta
 	def get_users(self):
 		sleep(2)
 
@@ -153,7 +158,7 @@ class InstaBot:
                 arguments[0].scrollTo(0, arguments[0].scrollHeight);  
                 return arguments[0].scrollHeight;
                 """, scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
-			sleep(5)
+			sleep(8)
 
 		# Creo la python list con los usuarios conseguidos
 		links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
@@ -167,8 +172,17 @@ class InstaBot:
 		# Devuelvo a los seguidores
 		return names
 
+	####################################################################################################
+
+	# Devuelve la cantidad de seguidores que tiene el perfil donde estas parado
+	def get_followers_count(self):
+		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]')
+		return toInt(fc.text)
+
+
 		####################################################################################################
-		
+	
+	# Devuelve true si el user tiene mas seguidos que seguidores	
 	def sigueAMas(self, user):
 		
 		# Entro al perfil del user a analizar
@@ -195,7 +209,8 @@ class InstaBot:
 
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-#my_bot.get_nonimportant('nicocarratala')
+my_bot.driver.get("https://www.instagram.com/meluabr/")
+my_bot.get_followers_count()
 
 
 
