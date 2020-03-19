@@ -123,7 +123,7 @@ class InstaBot:
 		print("El usuario sigue a ",len(following), " personas")
 
 		# Consigo cuantas personas siguen al cliente
-		follower_count = self.get_following_count();
+		follower_count = self.get_followers_count();
 
 		# Abro seguidores
 		self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
@@ -154,17 +154,27 @@ class InstaBot:
 	def get_users(self, cant):
 		sleep(2)
 
-		# Scroleo hasta el final del scroll_box (para cargar todas las cuentas) (minuto 8:55)
+
 		scroll_box = self.driver.find_element_by_xpath("/html/body/div[4]/div/div[2]") # tomo el scroll_box
-		last_ht, ht = 0, 1
-		while last_ht != ht: # mientras pueda seguir bajando
-			last_ht = ht 
-			sleep(1)
-			ht = self.driver.execute_script("""
-                arguments[0].scrollTo(0, arguments[0].scrollHeight);  
-                return arguments[0].scrollHeight;
-                """, scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
-			sleep(8)
+		termine = False
+
+		# Scroleo hasta el final del scroll_box (para cargar todas las cuentas) (minuto 8:55)
+		while not termine:
+			last_ht, ht = 0, 1
+			while last_ht != ht: # mientras pueda seguir bajando
+				last_ht = ht 
+				sleep(1)
+				ht = self.driver.execute_script("""
+                	arguments[0].scrollTo(0, arguments[0].scrollHeight);  
+                	return arguments[0].scrollHeight;
+                	""", scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
+				sleep(8)
+			links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
+			if len(links) < cant:
+				links.clear()
+			else:
+				termine = True
+
 
 		# Creo la python list con los usuarios conseguidos
 		links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
