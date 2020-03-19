@@ -85,13 +85,16 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(3)
 
+		# Consigo cuantas personas sigue
+		following_count = self.get_following_count()
+
 		# Abro sus seguidos
 		self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
         	.click()
 		sleep(2)
 
 		# Consigo la python list con sus seguidos (se cierra seguidores)
-		followers = self.get_users()
+		followers = self.get_users(following_count)
 
 		# Consigo la lista de sus non-importants
 		non_important = []
@@ -121,6 +124,7 @@ class InstaBot:
 		# Consigo la python list con sus seguidos (se cierra seguidos)
 		following = self.get_users(following_count)
 		print("El usuario sigue a ",len(following), " personas")
+		print("Los usuarios que sigue son: ", following)
 
 		# Consigo cuantas personas siguen al cliente
 		follower_count = self.get_followers_count();
@@ -133,6 +137,9 @@ class InstaBot:
 		# Consigo la python list con sus seguidores (se cierra seguidores)
 		followers = self.get_users(follower_count)
 		print("Al usuario lo siguen ", len(followers), " personas")
+		print("Los seguidores son: ", followers)
+
+
 
 		# Consigo e imprimo la lista de sus non-followers
 		no_following_back = [user for user in following if user not in followers]
@@ -168,7 +175,7 @@ class InstaBot:
                 	arguments[0].scrollTo(0, arguments[0].scrollHeight);  
                 	return arguments[0].scrollHeight;
                 	""", scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
-				sleep(8)
+				sleep(4)
 			links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
 			if len(links) < cant:
 				links.clear()
@@ -193,6 +200,7 @@ class InstaBot:
 	# Devuelve la cantidad de seguidores que tiene el perfil donde estas parado
 	def get_followers_count(self):
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]')
+		print(toInt(fc.text))
 		return toInt(fc.text)
 
 	####################################################################################################
@@ -200,6 +208,7 @@ class InstaBot:
 	# Devuelve la cantidad de segiodos que tiene el perfil donde estas parado
 	def get_following_count(self):
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[3]')
+		print(toInt(fc.text))
 		return toInt(fc.text)
 
 
@@ -212,18 +221,15 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(4)
 
-		# Consigue la cantidad de seguidres
-		cant_followers = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/followers')]".format(user))
-		print(cant_followers.text)
-		followers = toInt(cant_followers.text)
-		print("Lo siguen  ", followers, " usuarios")
+		# Consigue la cantidad de seguidres del user
+		follower_count = self.get_followers_count()
+		print("Lo siguen ", follower_count, " usuarios")
 
-		# Consigue la cantidad de seguidos
-		cant_following = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/following')]".format(user))
-		following = toInt(cant_following.text)
-		print("Sigue a  ", following , " usuarios")
+		# Consigue la cantidad de seguidres del user
+		following_count = self.get_following_count()
+		print("Sigue a ", following_count, " usuarios")
 
-		if following > followers:
+		if following_count > follower_count:
 			return True
 		else:
 			return False
@@ -232,7 +238,7 @@ class InstaBot:
 
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-my_bot.get_nonfollowers("lucaspioncetti")
+my_bot.get_nonimportant("lucaspioncetti")
 #my_bot.driver.get("https://www.instagram.com/meluabr/")
 
 
