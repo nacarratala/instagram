@@ -179,8 +179,15 @@ class InstaBot:
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]')
 		return toInt(fc.text)
 
+	####################################################################################################
 
-		####################################################################################################
+	# Devuelve la cantidad de segiodos que tiene el perfil donde estas parado
+	def get_following_count(self):
+		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[3]')
+		return toInt(fc.text)
+
+
+	####################################################################################################
 	
 	# Devuelve true si el user tiene mas seguidos que seguidores	
 	def sigueAMas(self, user):
@@ -210,8 +217,8 @@ class InstaBot:
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
 my_bot.driver.get("https://www.instagram.com/meluabr/")
-my_bot.get_followers_count()
-
+print(my_bot.get_following_count())
+print(my_bot.get_followers_count())
 
 
 
