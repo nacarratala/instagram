@@ -110,14 +110,20 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(3)
 
+		# Consigo cuantas personas el cliente sigue
+		following_count = self.get_following_count();
+
 		# Abro sus seguidos
 		self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
         	.click()
 		sleep(2)
 
 		# Consigo la python list con sus seguidos (se cierra seguidos)
-		following = self.get_users()
+		following = self.get_users(following_count)
 		print("El usuario sigue a ",len(following), " personas")
+
+		# Consigo cuantas personas siguen al cliente
+		follower_count = self.get_following_count();
 
 		# Abro seguidores
 		self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
@@ -125,7 +131,7 @@ class InstaBot:
 		sleep(2)
 
 		# Consigo la python list con sus seguidores (se cierra seguidores)
-		followers = self.get_users()
+		followers = self.get_users(follower_count)
 		print("Al usuario lo siguen ", len(followers), " personas")
 
 		# Consigo e imprimo la lista de sus non-followers
@@ -145,7 +151,7 @@ class InstaBot:
 	####################################################################################################
 	
 	# Devuelve la lista de todos los usuarios que aparecen en la scroll_box previamente abierta
-	def get_users(self):
+	def get_users(self, cant):
 		sleep(2)
 
 		# Scroleo hasta el final del scroll_box (para cargar todas las cuentas) (minuto 8:55)
@@ -162,7 +168,7 @@ class InstaBot:
 
 		# Creo la python list con los usuarios conseguidos
 		links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
-		names = [name.text for name in links if name.text != ''] # por cada link (usuario) extraigo su nombre
+		names = {name.text for name in links if name.text != ''} # por cada link (usuario) extraigo su nombre
 		#print(names)
 
 		# Cierro scroll_box
@@ -216,9 +222,8 @@ class InstaBot:
 
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-my_bot.driver.get("https://www.instagram.com/meluabr/")
-print(my_bot.get_following_count())
-print(my_bot.get_followers_count())
+my_bot.get_nonfollowers("lucaspioncetti")
+#my_bot.driver.get("https://www.instagram.com/meluabr/")
 
 
 
