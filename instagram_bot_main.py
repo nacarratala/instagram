@@ -38,6 +38,14 @@ def toInt(string):
 			res = res + '0'
 			res = res + '0'
 			return int(res)
+		elif letter == 'm' or letter == "M":
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			return int(res)
 		elif letter == ' ':
 			return int(res)
 
@@ -94,14 +102,18 @@ class InstaBot:
 		sleep(2)
 
 		# Consigo la python list con sus seguidos (se cierra seguidores)
-		followers = self.get_users(following_count)
+		following = self.get_users(following_count)
 
 		# Consigo la lista de sus non-importants
 		non_important = []
-		for user in followers:
-			if self.sigueAMas(user):
-				non_important.append(user)
-		print(non_important)
+		for user in following:
+			try:
+				if self.sigueAMas(user):
+					non_important.append(user)
+					print(user, "NO IMPORTANTE")
+			except:
+				print("El siguiente usuario no pudo ser computado: ", user)
+		print("FINALMENTE LOS USUARIOS NO IMPORTANTES SON: ", non_important)
 
 
 	####################################################################################################	
@@ -200,7 +212,6 @@ class InstaBot:
 	# Devuelve la cantidad de seguidores que tiene el perfil donde estas parado
 	def get_followers_count(self):
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]')
-		print(toInt(fc.text))
 		return toInt(fc.text)
 
 	####################################################################################################
@@ -208,7 +219,6 @@ class InstaBot:
 	# Devuelve la cantidad de segiodos que tiene el perfil donde estas parado
 	def get_following_count(self):
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[3]')
-		print(toInt(fc.text))
 		return toInt(fc.text)
 
 
