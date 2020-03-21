@@ -38,6 +38,14 @@ def toInt(string):
 			res = res + '0'
 			res = res + '0'
 			return int(res)
+		elif letter == 'm' or letter == "M":
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			res = res + '0'
+			return int(res)
 		elif letter == ' ':
 			return int(res)
 
@@ -85,20 +93,27 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(3)
 
+		# Consigo cuantas personas sigue
+		following_count = self.get_following_count()
+
 		# Abro sus seguidos
 		self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
         	.click()
 		sleep(2)
 
 		# Consigo la python list con sus seguidos (se cierra seguidores)
-		followers = self.get_users()
+		following = self.get_users(following_count)
 
 		# Consigo la lista de sus non-importants
 		non_important = []
-		for user in followers:
-			if self.sigueAMas(user):
-				non_important.append(user)
-		print(non_important)
+		for user in following:
+			try:
+				if self.sigueAMas(user):
+					non_important.append(user)
+					print(user, "NO IMPORTANTE")
+			except:
+				print("El siguiente usuario no pudo ser computado: ", user)
+		print("FINALMENTE LOS USUARIOS NO IMPORTANTES SON: ", non_important)
 
 
 	####################################################################################################	
@@ -110,14 +125,21 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(3)
 
+		# Consigo cuantas personas el cliente sigue
+		following_count = self.get_following_count();
+
 		# Abro sus seguidos
 		self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
         	.click()
 		sleep(2)
 
 		# Consigo la python list con sus seguidos (se cierra seguidos)
-		following = self.get_users()
-		print("El usuario sigue a ",len(following), " personas")
+		following = self.get_users(following_count)
+		#print("El usuario sigue a ",len(following), " personas")
+		#print("Los usuarios que sigue son: ", following)
+
+		# Consigo cuantas personas siguen al cliente
+		follower_count = self.get_followers_count();
 
 		# Abro seguidores
 		self.driver.find_element_by_xpath("//a[contains(@href,'/followers')]")\
@@ -125,9 +147,11 @@ class InstaBot:
 		sleep(2)
 
 		# Consigo la python list con sus seguidores (se cierra seguidores)
-		followers = self.get_users()
-		print("Al usuario lo siguen ", len(followers), " personas")
+		followers = self.get_users(follower_count)
+		#print("Al usuario lo siguen ", len(followers), " personas")
+		#print("Los seguidores son: ", followers)
 
+		print("Para non follower se analizo ", len(following), " seguidos y ", len(followers), " seguidores")
 		# Consigo e imprimo la lista de sus non-followers
 		no_following_back = [user for user in following if user not in followers]
 		print('\n')
@@ -145,24 +169,34 @@ class InstaBot:
 	####################################################################################################
 	
 	# Devuelve la lista de todos los usuarios que aparecen en la scroll_box previamente abierta
-	def get_users(self):
+	def get_users(self, cant):
 		sleep(2)
 
-		# Scroleo hasta el final del scroll_box (para cargar todas las cuentas) (minuto 8:55)
+
 		scroll_box = self.driver.find_element_by_xpath("/html/body/div[4]/div/div[2]") # tomo el scroll_box
-		last_ht, ht = 0, 1
-		while last_ht != ht: # mientras pueda seguir bajando
-			last_ht = ht 
-			sleep(1)
-			ht = self.driver.execute_script("""
-                arguments[0].scrollTo(0, arguments[0].scrollHeight);  
-                return arguments[0].scrollHeight;
-                """, scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
-			sleep(8)
+		termine = False
+
+		# Scroleo hasta el final del scroll_box (para cargar todas las cuentas) (minuto 8:55)
+		while not termine:
+			last_ht, ht = 0, 1
+			while last_ht != ht: # mientras pueda seguir bajando
+				last_ht = ht 
+				sleep(1)
+				ht = self.driver.execute_script("""
+                	arguments[0].scrollTo(0, arguments[0].scrollHeight);  
+                	return arguments[0].scrollHeight;
+                	""", scroll_box)	## Scroleamos una vez para abajo en el scroll_box y devolemos su nueva altura 
+				sleep(4)
+			links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
+			if len(links) < cant:
+				links.clear()
+			else:
+				termine = True
+
 
 		# Creo la python list con los usuarios conseguidos
 		links = scroll_box.find_elements_by_tag_name('a') # tomo todos los links que identifican a los usuarios pertenecientes al scroll_box
-		names = [name.text for name in links if name.text != ''] # por cada link (usuario) extraigo su nombre
+		names = {name.text for name in links if name.text != ''} # por cada link (usuario) extraigo su nombre
 		#print(names)
 
 		# Cierro scroll_box
@@ -179,8 +213,15 @@ class InstaBot:
 		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]')
 		return toInt(fc.text)
 
+	####################################################################################################
 
-		####################################################################################################
+	# Devuelve la cantidad de segiodos que tiene el perfil donde estas parado
+	def get_following_count(self):
+		fc = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[3]')
+		return toInt(fc.text)
+
+
+	####################################################################################################
 	
 	# Devuelve true si el user tiene mas seguidos que seguidores	
 	def sigueAMas(self, user):
@@ -189,18 +230,15 @@ class InstaBot:
 		self.driver.get("https://www.instagram.com/{}/".format(user))
 		sleep(4)
 
-		# Consigue la cantidad de seguidres
-		cant_followers = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/followers')]".format(user))
-		print(cant_followers.text)
-		followers = toInt(cant_followers.text)
-		print("Lo siguen  ", followers, " usuarios")
+		# Consigue la cantidad de seguidres del user
+		follower_count = self.get_followers_count()
+		#print("Lo siguen ", follower_count, " usuarios")
 
-		# Consigue la cantidad de seguidos
-		cant_following = self.driver.find_element_by_xpath("//a[contains(@href,'/{}/following')]".format(user))
-		following = toInt(cant_following.text)
-		print("Sigue a  ", following , " usuarios")
+		# Consigue la cantidad de seguidres del user
+		following_count = self.get_following_count()
+		#print("Sigue a ", following_count, " usuarios")
 
-		if following > followers:
+		if following_count > follower_count:
 			return True
 		else:
 			return False
@@ -209,9 +247,9 @@ class InstaBot:
 
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-my_bot.driver.get("https://www.instagram.com/meluabr/")
-my_bot.get_followers_count()
-
+my_bot.get_nonfollowers("nicocarratala")
+my_bot.get_nonimportant("nicocarratala")
+#my_bot.driver.get("https://www.instagram.com/meluabr/")
 
 
 
