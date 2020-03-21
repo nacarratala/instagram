@@ -135,8 +135,8 @@ class InstaBot:
 
 		# Consigo la python list con sus seguidos (se cierra seguidos)
 		following = self.get_users(following_count)
-		print("El usuario sigue a ",len(following), " personas")
-		print("Los usuarios que sigue son: ", following)
+		#print("El usuario sigue a ",len(following), " personas")
+		#print("Los usuarios que sigue son: ", following)
 
 		# Consigo cuantas personas siguen al cliente
 		follower_count = self.get_followers_count();
@@ -148,11 +148,10 @@ class InstaBot:
 
 		# Consigo la python list con sus seguidores (se cierra seguidores)
 		followers = self.get_users(follower_count)
-		print("Al usuario lo siguen ", len(followers), " personas")
-		print("Los seguidores son: ", followers)
+		#print("Al usuario lo siguen ", len(followers), " personas")
+		#print("Los seguidores son: ", followers)
 
-
-
+		print("Para non follower se analizo ", len(following), " seguidos y ", len(followers), " seguidores")
 		# Consigo e imprimo la lista de sus non-followers
 		no_following_back = [user for user in following if user not in followers]
 		print('\n')
@@ -233,11 +232,11 @@ class InstaBot:
 
 		# Consigue la cantidad de seguidres del user
 		follower_count = self.get_followers_count()
-		print("Lo siguen ", follower_count, " usuarios")
+		#print("Lo siguen ", follower_count, " usuarios")
 
 		# Consigue la cantidad de seguidres del user
 		following_count = self.get_following_count()
-		print("Sigue a ", following_count, " usuarios")
+		#print("Sigue a ", following_count, " usuarios")
 
 		if following_count > follower_count:
 			return True
@@ -248,7 +247,8 @@ class InstaBot:
 
 # Ejecucion
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-my_bot.get_nonimportant("lucaspioncetti")
+my_bot.get_nonfollowers("nicocarratala")
+my_bot.get_nonimportant("nicocarratala")
 #my_bot.driver.get("https://www.instagram.com/meluabr/")
 
 
