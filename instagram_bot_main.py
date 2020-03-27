@@ -126,12 +126,18 @@ class InstaBot:
 		sleep(3)
 
 		# Consigo cuantas personas el cliente sigue
-		following_count = self.get_following_count();
+		try:
+			following_count = self.get_following_count();
+		except:
+			print("El usuario ingresado no existe. Su cuenta pudo haber sido borrada")
+			print("Si usted esta seguro que existe, por favor comuniquese con NicoCompany")
+			return True
 
 		# Abro sus seguidos
-		self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
-        	.click()
-		sleep(2)
+			self.driver.find_element_by_xpath("//a[contains(@href,'/following')]")\
+        		.click()
+			sleep(2)
+
 
 		# Consigo la python list con sus seguidos (se cierra seguidos)
 		following = self.get_users(following_count)
@@ -244,26 +250,16 @@ class InstaBot:
 			return False
 		
 
-
+####################################################
 # Ejecucion
+print("Bienvenido a InstaBot. A continuacion, ingrese el usuario que desea analizar")
+input_ok = False
+user = ''
+while not input_ok:
+	user = input()
+	if " " in user or user == "":
+		print("El usuario ingresado no es valido. No se permiten espacios")
+	else:
+		input_ok = True
 my_bot = InstaBot('lucaspioncetti', 'cacho123asd')
-my_bot.get_nonfollowers("nicocarratala")
-my_bot.get_nonimportant("nicocarratala")
-#my_bot.driver.get("https://www.instagram.com/meluabr/")
-
-
-
-#my_bot.driver.get("https://www.instagram.com/{}/".format(user))
-#sleep(3)
-
-
-#cant_followers = my_bot.driver.find_element_by_xpath("//a[contains(@href,'/{}/followers')]".format(user))
-#print(cant_followers.text)
-#followers = toInt(cant_followers.text)
-#print (followers)
-
-
-#cant_following = my_bot.driver.find_element_by_xpath("//a[contains(@href,'/{}/following')]".format(user))
-#print(cant_following.text)
-#following = int(cant_following.text)
-
+my_bot.get_nonfollowers(user)
